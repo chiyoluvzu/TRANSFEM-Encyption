@@ -1,95 +1,94 @@
-# TRANSFEM Writeup
+TRANSFEM Writeup
 
-A detailed overview of the TRANSFEM encryption scheme, extending the core principles of the MEME scheme—matrix perturbation and modular arithmetic—to construct an eight‑stage pipeline for strong diffusion, confusion, and randomness.
+A detailed overview of the TRANSFEM encryption scheme, extending the core principles of the MEME scheme—matrix perturbation and modular arithmetic—to construct an eight-stage pipeline for strong diffusion, confusion, and randomness.
 
-## Table of Contents
+Table of Contents
+	•	1. Introduction
+	•	2. Acronym Definition
+	•	3. Key Generation
+	•	4. Encryption Process
+	•	5. Decryption Process
+	•	6. Security Considerations
 
-- [1. Introduction](#1-introduction)  
-- [2. Acronym Definition](#2-acronym-definition)  
-- [3. Key Generation](#3-key-generation)  
-- [4. Encryption Process](#4-encryption-process)  
-- [5. Decryption Process](#5-decryption-process)  
-- [6. Security Considerations](#6-security-considerations)  
+⸻
 
----
+1. Introduction
 
-## 1. Introduction
+TRANSFEM extends the core principles of the MEME scheme—matrix perturbation and modular arithmetic—to construct an eight‑stage encryption pipeline. Each stage contributes diffusion, confusion, or randomness, yielding strong resistance to linear and algebraic attacks.
 
-TRANSFEM extends the core principles of the MEME scheme—matrix perturbation and modular arithmetic—to construct an eight‑stage encryption pipeline. Each stage contributes diffusion, confusion, or randomness, yielding strong resistance to linear and algebraic attacks. Transfemwriteup.pdf](file-service://file-47pud14S7avAsomzS6qbpj)
+⸻
 
----
+2. Acronym Definition
 
-## 2. Acronym Definition
+Letter	Stage
+T	Tensorization
+R	Randomization
+A	Affine Transform
+N	Normalization
+S	Scrambling
+F	Field Extension
+E	Encoding (S‑Box)
+M	Masking
 
-| Letter | Stage               |
-|-------:|---------------------|
-| **T**  | Tensorization       |
-| **R**  | Randomization       |
-| **A**  | Affine Transform    |
-| **N**  | Normalization       |
-| **S**  | Scrambling          |
-| **F**  | Field Extension     |
-| **E**  | Encoding (S‑Box)    |
-| **M**  | Masking             | Transfemwriteup.pdf](file-service://file-47pud14S7avAsomzS6qbpj)
 
----
 
-## 3. Key Generation
+⸻
 
-1. **Select** a large modulus `m` (prime or power of two).  
-2. **Generate** invertible matrices `P`, `A`, `S` in ℤₘ.  
-3. **Choose** offset vector `b` and a noise distribution for randomization.  
-4. **Define** a bijective S‑Box function `σ: ℤₘ → ℤₘ`.  
-5. **Initialize** a cryptographically secure PRNG for masking. Transfemwriteup.pdf](file-service://file-47pud14S7avAsomzS6qbpj)
+3. Key Generation
+	1.	Select a large modulus m (prime or power of two).
+	2.	Generate invertible matrices P, A, and S over ℤₘ.
+	3.	Choose an offset vector b and a suitable noise distribution.
+	4.	Define a bijective S‑Box function σ: ℤₘ → ℤₘ.
+	5.	Initialize a cryptographically secure PRNG for keystream masking.
 
----
+⸻
 
-## 4. Encryption Process
+4. Encryption Process
+	1.	Tensorization
+Flatten plaintext message M into vector x.
+	2.	Randomization
+Compute x₁ = P·x + n, where n is drawn from the chosen noise distribution.
+	3.	Affine Transform
+Compute x₂ = A·x₁ + b.
+	4.	Normalization
+Reduce components modulo m: x₃ = x₂ mod m.
+	5.	Scrambling
+Apply secret mixing: x₄ = S·x₃ mod m.
+	6.	Field Extension
+Interpret x₄ as an element of GF(pᵏ) to increase algebraic complexity.
+	7.	Encoding (S‑Box)
+Apply nonlinear substitution: x₅ = σ(x₄).
+	8.	Masking
+Produce ciphertext: C = (x₅ + keystream) mod m.
 
-1. **Tensorization**  
-   Flatten plaintext `M` into vector `x`.  
-2. **Randomization**  
-   Compute `x₁ = P·x + n` (add noise).  
-3. **Affine Transform**  
-   Compute `x₂ = A·x₁ + b`.  
-4. **Normalization**  
-   Reduce: `x₃ = x₂ mod m`.  
-5. **Scrambling**  
-   Mix: `x₄ = S·x₃ mod m`.  
-6. **Field Extension**  
-   Interpret `x₄` in GF(pᵏ).  
-7. **Encoding (S‑Box)**  
-   Apply `σ`: `x₅ = σ(x₄)`.  
-8. **Masking**  
-   Produce ciphertext: `C = (x₅ + keystream) mod m`. Transfemwriteup.pdf](file-service://file-47pud14S7avAsomzS6qbpj)
+⸻
 
----
+5. Decryption Process
+	1.	Unmask
+Recover x₅ = (C − keystream) mod m.
+	2.	Decode
+Invert substitution: x₄ = σ⁻¹(x₅).
+	3.	Unscramble
+Compute x₃ = S⁻¹·x₄ mod m.
+	4.	Project Back
+Convert from GF(pᵏ) back to ℤₘ domain.
+	5.	Denormalize
+x₂ = x₃ mod m.
+	6.	Inverse Affine
+Compute x₁ = A⁻¹·(x₂ − b) mod m.
+	7.	Inverse Randomization
+Recover x = P⁻¹·(x₁ − n).
+	8.	De‑tensorize
+Reconstruct plaintext M from vector x.
 
-## 5. Decryption Process
+⸻
 
-1. **Unmask**  
-   `x₅ = (C − keystream) mod m`.  
-2. **Decode**  
-   `x₄ = σ⁻¹(x₅)`.  
-3. **Unscramble**  
-   `x₃ = S⁻¹·x₄ mod m`.  
-4. **Project Back**  
-   Return to ℤₘ if in GF(pᵏ).  
-5. **Denormalize**  
-   `x₂ = x₃ mod m`.  
-6. **Inverse Affine**  
-   `x₁ = A⁻¹·(x₂ − b) mod m`.  
-7. **Inverse Randomization**  
-   `x = P⁻¹·(x₁ − n)`.  
-8. **De‑tensorize**  
-   Recover `M` from `x`. Transfemwriteup.pdf](file-service://file-47pud14S7avAsomzS6qbpj)
+6. Security Considerations
+	•	Layered Linear Operations (P, A, S) ensure complete diffusion across all bits.
+	•	Noise Injection (n) resists chosen‑plaintext attacks by randomizing intermediate values.
+	•	Nonlinear S‑Box provides strong confusion against differential and linear cryptanalysis.
+	•	Field Extension (GF(pᵏ)) complicates algebraic attacks by increasing polynomial degree.
+	•	Fresh Masking per message guarantees IND‑CPA security under standard assumptions.
 
----
+⸻
 
-## 6. Security Considerations
-
-- **Layered Linear Operations** (`P`, `A`, `S`) ensure complete diffusion.  
-- **Noise Injection** resists chosen‑plaintext attacks.  
-- **Nonlinear S‑Box** provides strong confusion.  
-- **Field Extension** complicates algebraic cryptanalysis.  
-- **Fresh Masking** per message achieves IND‑CPA security. Transfemwriteup.pdf](file-service://file-47pud14S7avAsomzS6qbpj)
